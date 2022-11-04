@@ -2,13 +2,15 @@ package dao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
 import pojo.Serie;
+import pojo.Temporada;
 import utils.DatabaseConnection;
 
-public class SerieDao implements Dao<Serie>{
+public class SerieDao extends ObjetoDao implements InterfazDao<Serie>{
 	
 	private static Connection connection;
 	
@@ -18,14 +20,56 @@ public class SerieDao implements Dao<Serie>{
 
 	@Override
 	public ArrayList<Serie> buscarTodos() {
-		// TODO Auto-generated method stub
-		return null;
+		ArrayList<Serie> series = new ArrayList<>();
+		
+		connection= openConnection();
+		
+		String query = "Select * FRom Series";
+		
+		try {
+			PreparedStatement ps = connection.prepareStatement(query);
+			ResultSet rs = ps.executeQuery();
+			
+			while(rs.next()) {
+				Serie serie = new Serie(rs.getInt("id"),
+						rs.getString("titulo"),
+						rs.getInt("edad"),
+						rs.getString("plataforma"), 
+						null);
+				series.add(serie);
+				
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return series;
 	}
 
 	@Override
 	public Serie buscarPor(int i) {
-		// TODO Auto-generated method stub
-		return null;
+		connection = openConnection();
+
+		String query = "select * from series where id = ?";
+		Serie serie=null;
+		
+
+		try {
+			PreparedStatement ps = connection.prepareStatement(query);
+			ps.setInt(1, i);
+			ResultSet rs = ps.executeQuery();
+			while(rs.next()){
+				serie = new Serie(rs.getInt("id"),rs.getString("titulo"),rs.getInt("edad"),rs.getString("plataforma"), null);
+				serie.setTemporadas(obtenerTemporadas(serie));
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		closeConnection();
+		
+		return serie;
 	}
 
 	@Override
@@ -39,6 +83,7 @@ public class SerieDao implements Dao<Serie>{
 			ps.setString(1, serie.getTitulo());
 			ps.setInt(2, serie.getEdad());
 			ps.setString(3, serie.getPlataforma());
+			
 			ps.executeUpdate();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -50,8 +95,49 @@ public class SerieDao implements Dao<Serie>{
 	}
 
 	@Override
-	public void modificar(Serie t) {
-		// TODO Auto-generated method stub
+	public void modificar(Serie serie) {
+		int id=serie.getId();
+		String titulo=serie.getTitulo();
+		int edad = serie.getEdad();
+		String plataforma = serie.getPlataforma();
+		
+		connection = openConnection();
+		
+		String query = "UPDATE SERIES SET titulo=?,edad = ? , plataforma=? where id=?";
+		
+		try {
+			PreparedStatement ps = connection.prepareStatement(query);
+			ps.setString(1, serie.getTitulo());
+			ps.setInt(2, serie.getEdad());
+			ps.setString(3, serie.getPlataforma());
+			ps.setInt(4, serie.getId());
+			ps.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		
+	}
+	public ArrayList<Temporada> obtenerTemporadas(Serie serie){
+		ArrayList<Temporada>temporadas = new ArrayList<>();
+		connection = openConnection();
+		String query = "Select * from temporadas where serie_id = ?";
+		try {
+			PreparedStatement ps = connection.prepareStatement(query);
+			ps.setInt(1, serie.getId());
+			ResultSet rs = ps.executeQuery();
+			while(rs.next()){
+				Temporada temporada = new Temporada(rs.getInt("id"),rs.getInt("num_temporada"),rs.getString("titulo"),serie);
+				temporadas.add(temporada);
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		//closeConnection();
+		return temporadas;
 		
 	}
 
@@ -61,24 +147,6 @@ public class SerieDao implements Dao<Serie>{
 		
 	}
 	
-	private static Connection openConnection() {
-		DatabaseConnection dbConnection = new DatabaseConnection();
-		connection = dbConnection.getConnection();
-		return connection;
-
-	}
-
-	private static Connection closeConnection() {
-
-		try {
-			connection.close();
-			connection = null;
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return connection;
-
-	}
+	
 	
 }

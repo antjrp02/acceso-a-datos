@@ -1,11 +1,15 @@
 package dao;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 import pojo.Temporada;
+import utils.DatabaseConnection;
 
-public class TemporadaDao implements Dao<Temporada> {
-
+public class TemporadaDao extends ObjetoDao implements InterfazDao<Temporada> {
+	private static Connection connection;
 	@Override
 	public ArrayList<Temporada> buscarTodos() {
 		// TODO Auto-generated method stub
@@ -20,7 +24,22 @@ public class TemporadaDao implements Dao<Temporada> {
 
 	@Override
 	public void insertar(Temporada t) {
-		// TODO Auto-generated method stub
+		connection = openConnection();
+		
+		
+		String query = "insert into temporadas (num_temporada,titulo,serie_id) values(?,?,?)";
+		try {
+			PreparedStatement ps = connection.prepareStatement(query);
+			ps.setInt(1, t.getNum_temporada());
+			ps.setString(2, t.getTitulo());
+			ps.setInt(3,t.getSerie().getId());
+			ps.executeUpdate();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		closeConnection();
 		
 	}
 
@@ -35,5 +54,6 @@ public class TemporadaDao implements Dao<Temporada> {
 		// TODO Auto-generated method stub
 		
 	}
+	
 
 }
