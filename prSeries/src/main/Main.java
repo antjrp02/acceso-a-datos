@@ -20,13 +20,13 @@ public class Main {
 		//Serie s = new Serie("The Mandalorian",12,"Disney Plus");
 		//serieDao.insertar(s);
 		
-		Serie los_simpsons = serieDao.buscarPor(1);
+		/**Serie los_simpsons = serieDao.buscarPor(1);
 		
 		ArrayList<Temporada>temporadas = serieDao.obtenerTemporadas(los_simpsons);
 		for(Temporada temporada: temporadas) {
 			System.out.println(temporada);
 		}
-		/**los_simpsons.setPlataforma("Netflix");
+		los_simpsons.setPlataforma("Netflix");
 		serieDao.modificar(los_simpsons);
 		ArrayList<Serie>series = serieDao.buscarTodos();
 		for(Serie serie: series) {
@@ -35,6 +35,18 @@ public class Main {
 		*/
 		//System.out.println(serieDao.buscarPor(2));
 		
+		TemporadaDao temporadaDao = new TemporadaDao();
+		/**
+		Serie s = serieDao.buscarPor(1);
+		Temporada t1 = new Temporada(1,"The mandalorian Season 1",s);
+		Temporada t2 = new Temporada(1,"The mandalorian Season 2",s);
+		Temporada t3 = new Temporada(1,"The mandalorian Season 3",s);
+		temporadaDao.insertar(t1);
+		temporadaDao.insertar(t2);
+		temporadaDao.insertar(t3);
+		*/
+		
+		temporadaDao.borrarPorSerie(8);
 	}
 
 }
